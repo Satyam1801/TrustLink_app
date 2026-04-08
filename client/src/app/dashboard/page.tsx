@@ -47,7 +47,7 @@ export default function Dashboard() {
 
   const fetchDashboardData = useCallback(async () => {
     try {
-      const res = await fetch('http://localhost:5000/api/links', {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/links`, {
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',   // ✅ FIX: proper credentials
       });
@@ -73,7 +73,7 @@ export default function Dashboard() {
     e.preventDefault();
     setSaveLoading(true);
     try {
-      const res = await fetch('http://localhost:5000/api/links/add', {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/links/add`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
@@ -103,7 +103,7 @@ export default function Dashboard() {
     if (!newLink.id) return;
     setSaveLoading(true);
     try {
-      const res = await fetch(`http://localhost:5000/api/links/${newLink.id}`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/links/${newLink.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
@@ -131,7 +131,7 @@ export default function Dashboard() {
   const handleDeleteLink = async (id: string) => {
     if (!confirm('Delete this link permanently?')) return;
     try {
-      const res = await fetch(`http://localhost:5000/api/links/${id}`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/links/${id}`, {
         method: 'DELETE',
         credentials: 'include',
       });
@@ -149,7 +149,7 @@ export default function Dashboard() {
   const submitFeedback = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const res = await fetch('http://localhost:5000/api/feedback', {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/feedback`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
@@ -167,7 +167,7 @@ export default function Dashboard() {
   };
 
   const handleLogout = async () => {
-    await fetch('http://localhost:5000/api/auth/logout', { method: 'POST', credentials: 'include' });
+    await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/auth/logout`, { method: 'POST', credentials: 'include' });
     router.push('/');
   };
 

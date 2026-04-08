@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { CreditCard, Crown, Clock, CheckCircle, XCircle, ArrowLeft, Download, Coins } from 'lucide-react';
 import Link from 'next/link';
 
-const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+const API = process.env.NEXT_PUBLIC_API_URL || `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}`;
 
 interface Transaction {
   id: string;

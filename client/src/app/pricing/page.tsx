@@ -5,7 +5,7 @@ import { Check, Zap, Crown, Sparkles, ArrowRight, CreditCard, Gift, X } from 'lu
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
-const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+const API = process.env.NEXT_PUBLIC_API_URL || `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}`;
 
 const PLANS = [
   {

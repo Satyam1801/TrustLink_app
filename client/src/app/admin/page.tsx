@@ -13,13 +13,13 @@ export default function AdminDashboard() {
   useEffect(() => {
     const fetchAdminData = async () => {
       try {
-        const resFb = await fetch('http://localhost:5000/api/feedback', {
+        const resFb = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/feedback`, {
           headers: { 'Content-Type': 'application/json' },
         });
         const dataFb = await resFb.json();
         if (dataFb.success) setFeedbacks(dataFb.feedbacks);
 
-        const resUsr = await fetch('http://localhost:5000/api/admin/users', {
+        const resUsr = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/admin/users`, {
           headers: { 'Content-Type': 'application/json' },
         });
         const dataUsr = await resUsr.json();
@@ -36,13 +36,13 @@ export default function AdminDashboard() {
   }, []);
 
   const handleBlockUser = async (id: string) => {
-    await fetch(`http://localhost:5000/api/admin/users/${id}/block`, { method: 'PUT' });
+    await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/admin/users/${id}/block`, { method: 'PUT' });
     setUsersList(usersList.map(u => u.id === id ? { ...u, role: 'BLOCKED' } : u));
   };
 
   const handleDeleteUser = async (id: string) => {
     if(confirm('Are you sure you want to completely delete this user?')) {
-      await fetch(`http://localhost:5000/api/admin/users/${id}`, { method: 'DELETE' });
+      await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/admin/users/${id}`, { method: 'DELETE' });
       setUsersList(usersList.filter(u => u.id !== id));
     }
   };
