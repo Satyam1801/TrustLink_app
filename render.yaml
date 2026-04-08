@@ -2,11 +2,13 @@ services:
   - type: web
     name: trustlink-backend
     env: node
-    buildCommand: cd server && npm install && npx prisma generate && npx prisma db push
-    startCommand: cd server && npm start
+    buildCommand: cd server && npm install && npx prisma generate
+    startCommand: cd server && npx prisma db push --accept-data-loss && npm start
     envVars:
       - key: NODE_ENV
         value: production
+      - key: NODE_VERSION
+        value: 20.10.0
       - key: PORT
         value: 5000
       - key: DATABASE_URL
