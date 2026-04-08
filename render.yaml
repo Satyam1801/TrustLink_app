@@ -1,0 +1,41 @@
+services:
+  - type: web
+    name: trustlink-backend
+    env: node
+    buildCommand: cd server && npm install && npx prisma generate && npx prisma migrate deploy
+    startCommand: cd server && npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 5000
+      - key: DATABASE_URL
+        fromDatabase:
+          name: trustlink-db
+          property: connectionString
+      - key: JWT_SECRET
+        generateValue: true
+      - key: CLIENT_URL
+        value: https://trustlink.vercel.app # Update this with your actual Vercel URL after deployment!
+      - key: ALLOWED_ORIGINS
+        value: https://trustlink.vercel.app # Update with your deployed Vercel domain
+      # Add Razorpay and SMTP below manually in the Render Dashboard after deployment
+      - key: RAZORPAY_KEY_ID
+        sync: false
+      - key: RAZORPAY_KEY_SECRET
+        sync: false
+      - key: RAZORPAY_WEBHOOK_SECRET
+        sync: false
+      - key: SMTP_HOST
+        value: smtp.gmail.com
+      - key: SMTP_PORT
+        value: 587
+      - key: SMTP_USER
+        sync: false
+      - key: SMTP_PASS
+        sync: false
+
+databases:
+  - name: trustlink-db
+    databaseName: trustlink
+    user: trustlink_user

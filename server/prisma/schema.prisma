@@ -1,0 +1,128 @@
+// 🗄 Prisma Schema for TrustLink
+// Version 2.0 — Monetization + Billing upgrade
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+// ─── Enums ───────────────────────────────────────────────────────────────────
+// SQLite does not support native enums — stored as String with validation
+// Plan values: "FREE" | "BASIC" | "PRO"
+
+model User {
+  id             String          @id @default(uuid())
+  email          String          @unique
+  password       String
+  username       String          @unique
+  role           String          @default("USER")          // USER | ADMIN | BLOCKED
+  plan           String          @default("FREE")          // FREE | BASIC | PRO
+  credits        Int             @default(10)
+  isVerified     Boolean         @default(false)
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+
+  profile        Profile?
+  feedbacks      Feedback[]
+  subscriptions  Subscription[]
+  transactions   Transaction[]
+  passwordResets PasswordReset[]
+}
+
+model Profile {
+  id          String   @id @default(uuid())
+  bio         String?
+  avatarUrl   String?
+  trustScore  Int      @default(0)
+  verified    Boolean  @default(false)
+  userId      String   @unique
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user        User     @relation(fields: [userId], references: [id])
+  links       Link[]
+}
+
+model Link {
+  id          String    @id @default(uuid())
+  title       String
+  url         String
+  icon        String?
+  isVerified  Boolean   @default(false)
+  clickCount  Int       @default(0)
+  password    String?
+  expiresAt   DateTime?
+  profileId   String?
+  createdAt   DateTime  @default(now())
+
+  profile     Profile?  @relation(fields: [profileId], references: [id])
+}
+
+model Feedback {
+  id        String   @id @default(uuid())
+  message   String
+  rating    Int?
+  userId    String
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id])
+}
+
+// ─── Billing / Monetization ──────────────────────────────────────────────────
+
+model Subscription {
+  id                 String   @id @default(uuid())
+  userId             String
+  plan               String                              // FREE | BASIC | PRO
+  status             String   @default("active")        // active | cancelled | expired
+  currentPeriodStart DateTime
+  currentPeriodEnd   DateTime
+  razorpaySubId      String?
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  user               User     @relation(fields: [userId], references: [id])
+}
+
+model Transaction {
+  id                String   @id @default(uuid())
+  userId            String
+  amount            Float
+  currency          String   @default("INR")
+  type              String                              // subscription | credit_pack
+  status            String                              // pending | success | failed
+  razorpayOrderId   String?
+  razorpayPaymentId String?
+  planOrPack        String?                             // e.g. "BASIC" or "starter_pack"
+  creditsAdded      Int?
+  couponUsed        String?
+  createdAt         DateTime @default(now())
+
+  user              User     @relation(fields: [userId], references: [id])
+}
+
+model Coupon {
+  id        String    @id @default(uuid())
+  code      String    @unique
+  discount  Float                                      // 0–100 (percentage)
+  maxUses   Int
+  usedCount Int       @default(0)
+  expiresAt DateTime?
+  isActive  Boolean   @default(true)
+  createdAt DateTime  @default(now())
+}
+
+model PasswordReset {
+  id        String   @id @default(uuid())
+  userId    String
+  token     String   @unique
+  expiresAt DateTime
+  used      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id])
+}
