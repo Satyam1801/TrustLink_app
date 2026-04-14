@@ -28,7 +28,11 @@ export default function LoginPage() {
       if (!data.success) {
         setError(data.message || 'Login failed. Check your credentials.');
       } else {
-        router.push('/dashboard');
+        if (data.user.role === 'ADMIN') {
+          router.push('/admin');
+        } else {
+          router.push('/dashboard');
+        }
       }
     } catch {
       setError('Cannot reach server. Make sure backend is running on port 5000.');

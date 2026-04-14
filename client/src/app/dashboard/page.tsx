@@ -3,7 +3,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import {
   Plus, ExternalLink, Trash2, CheckCircle2, TrendingUp, Settings,
-  Edit3, MessageSquare, Star, Loader2, X, LogOut, Home
+  Edit3, MessageSquare, Star, Loader2, X, LogOut, Home, ShieldCheck
 } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -45,8 +45,19 @@ export default function Dashboard() {
   const [feedback, setFeedback] = useState({ message: '', rating: 5 });
   const [saveLoading, setSaveLoading] = useState(false);
 
+  const [role, setRole] = useState('');
+
   const fetchDashboardData = useCallback(async () => {
     try {
+      const authRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/auth/me`, {
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+      });
+      const authData = await authRes.json();
+      if (authData.success) {
+        setRole(authData.user.role);
+      }
+
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/links`, {
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',   // ✅ FIX: proper credentials
@@ -227,18 +238,25 @@ export default function Dashboard() {
             <h1 className="text-3xl sm:text-4xl font-black tracking-tighter text-white">My Dashboard</h1>
             <p className="text-white/40 text-sm mt-1">Manage your verified links and profile</p>
           </div>
-          <div className="flex gap-3 flex-wrap">
-            <button onClick={() => setShowFeedbackModal(true)}
-              className="flex items-center gap-2 text-sm font-bold px-4 py-2.5 rounded-xl transition-all text-white/70 hover:text-white"
-              style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }}>
-              <MessageSquare className="w-4 h-4" /> Feedback
-            </button>
-            <button onClick={() => setShowAddModal(true)}
-              className="flex items-center gap-2 text-sm font-bold px-4 py-2.5 rounded-xl transition-all text-white"
-              style={{ background: 'linear-gradient(135deg,#6366f1,#8b5cf6)', boxShadow: '0 4px 20px rgba(99,102,241,0.35)' }}>
-              <Plus className="w-4 h-4" /> Add New Link
-            </button>
-          </div>
+            <div className="flex gap-3 flex-wrap">
+              {role === 'ADMIN' && (
+                <Link href="/admin"
+                  className="flex items-center gap-2 text-sm font-bold px-4 py-2.5 rounded-xl transition-all text-white"
+                  style={{ background: 'linear-gradient(135deg,#10b981,#059669)', boxShadow: '0 4px 20px rgba(16,185,129,0.35)' }}>
+                  <ShieldCheck className="w-4 h-4" /> Admin Panel
+                </Link>
+              )}
+              <button onClick={() => setShowFeedbackModal(true)}
+                className="flex items-center gap-2 text-sm font-bold px-4 py-2.5 rounded-xl transition-all text-white/70 hover:text-white"
+                style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }}>
+                <MessageSquare className="w-4 h-4" /> Feedback
+              </button>
+              <button onClick={() => setShowAddModal(true)}
+                className="flex items-center gap-2 text-sm font-bold px-4 py-2.5 rounded-xl transition-all text-white"
+                style={{ background: 'linear-gradient(135deg,#6366f1,#8b5cf6)', boxShadow: '0 4px 20px rgba(99,102,241,0.35)' }}>
+                <Plus className="w-4 h-4" /> Add New Link
+              </button>
+            </div>
         </motion.div>
 
         {error && (

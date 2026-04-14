@@ -1,10 +1,12 @@
 "use client";
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { ShieldCheck, Users, Link as LinkIcon, MessageSquare, Trash2, DollarSign, Ban } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 
 export default function AdminDashboard() {
+  const router = useRouter();
   const [feedbacks, setFeedbacks] = useState<any[]>([]);
   const [usersList, setUsersList] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -15,34 +17,49 @@ export default function AdminDashboard() {
       try {
         const resFb = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/feedback`, {
           headers: { 'Content-Type': 'application/json' },
+          credentials: 'include'
         });
         const dataFb = await resFb.json();
         if (dataFb.success) setFeedbacks(dataFb.feedbacks);
 
         const resUsr = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/admin/users`, {
           headers: { 'Content-Type': 'application/json' },
+          credentials: 'include'
         });
+        
+        if (resUsr.status === 401 || resUsr.status === 403) {
+          router.push('/dashboard');
+          return;
+        }
+        
         const dataUsr = await resUsr.json();
         if (dataUsr.success) setUsersList(dataUsr.users);
 
       } catch (err) {
         setError('Failed to load admin data. Ensure you are an Admin.');
+        router.push('/dashboard');
       } finally {
         setLoading(false);
       }
     };
 
     fetchAdminData();
-  }, []);
+  }, [router]);
 
   const handleBlockUser = async (id: string) => {
-    await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/admin/users/${id}/block`, { method: 'PUT' });
+    await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/admin/users/${id}/block`, { 
+      method: 'PUT',
+      credentials: 'include'
+    });
     setUsersList(usersList.map(u => u.id === id ? { ...u, role: 'BLOCKED' } : u));
   };
 
   const handleDeleteUser = async (id: string) => {
     if(confirm('Are you sure you want to completely delete this user?')) {
-      await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/admin/users/${id}`, { method: 'DELETE' });
+      await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/admin/users/${id}`, { 
+        method: 'DELETE',
+        credentials: 'include'
+      });
       setUsersList(usersList.filter(u => u.id !== id));
     }
   };

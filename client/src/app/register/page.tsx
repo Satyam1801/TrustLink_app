@@ -45,8 +45,13 @@ function RegisterContent() {
       if (!data.success) {
         setError(data.message || 'Registration failed. Please try again.');
       } else {
-        setSuccess('Account created! Redirecting to dashboard...');
-        setTimeout(() => router.push('/dashboard'), 1200);
+        if (plan && plan !== 'free') {
+          setSuccess('Account created! Redirecting to checkout...');
+          setTimeout(() => router.push('/pricing'), 1200);
+        } else {
+          setSuccess('Account created! Redirecting to dashboard...');
+          setTimeout(() => router.push('/dashboard'), 1200);
+        }
       }
     } catch {
       setError('Cannot reach server. Make sure backend is running on port 5000.');

@@ -34,10 +34,8 @@ exports.register = async (req, res) => {
     // Hash Password
     const hashedPassword = await bcrypt.hash(password, 12);
 
-    // Determine plan from query/body
-    const selectedPlan = (req.body.plan || 'FREE').toUpperCase();
-    const validPlans = ['FREE', 'BASIC', 'PRO'];
-    const plan = validPlans.includes(selectedPlan) ? selectedPlan : 'FREE';
+    // Determine plan - Always FREE on registration. Upgrades require payment.
+    const plan = 'FREE';
 
     // Create User & Profile
     const newUser = await prisma.user.create({
